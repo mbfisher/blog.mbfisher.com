@@ -1,0 +1,11 @@
+{
+    "name": "mbfisher/thefishers.blog",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Mike Fisher",
+            "email": "mike@mbfisher.com"
+        }
+    ],
+    "require": {}
+}
