@@ -1,0 +1,27 @@
+version: '3.0'
+
+services:
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  web:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 8888:8888
+    links:
+      - db
+    environment:
+      - DB_HOST=db:3306
+      - DB_NAME=wordpress
+      - DB_USER=wordpress
+      - DB_PASSWORD=wordpress
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+    command: 'php -S 0.0.0.0:8888 -t /usr/src/app'
