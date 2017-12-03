@@ -85,6 +85,13 @@ $table_prefix  = 'wp_';
  */
 define('WP_DEBUG', getenv('WP_DEBUG'));
 
+define('FORCE_SSL_ADMIN', true);
+// in some setups HTTP_X_FORWARDED_PROTO might contain
+// a comma-separated list e.g. http,https
+// so check for https existence
+if (strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)
+    $_SERVER['HTTPS']='on';
+
 /* That's all, stop editing! Happy blogging. */
 
 /** Absolute path to the WordPress directory. */
