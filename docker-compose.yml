@@ -14,10 +14,11 @@ services:
     volumes:
       - .:/var/www/html/
     ports:
-      - 8080:80
+      - 80:80
     links:
       - db
     environment:
+      - WP_DEBUG
       - DB_HOST=db:3306
       - DB_NAME=wordpress
       - DB_USER=wordpress
