@@ -12,9 +12,9 @@ services:
   web:
     build: .
     volumes:
-      - .:/usr/src/app
+      - .:/var/www/html/
     ports:
-      - 8888:8888
+      - 8080:80
     links:
       - db
     environment:
@@ -24,4 +24,3 @@ services:
       - DB_PASSWORD=wordpress
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
-    command: 'php -S 0.0.0.0:8888 -t /usr/src/app'

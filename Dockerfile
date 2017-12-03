@@ -1,4 +1,3 @@
-FROM php:7.2-cli-alpine
+FROM php:7.2-apache
 
-RUN apk add --no-cache postgresql-dev && \
-    docker-php-ext-install mysqli
+RUN docker-php-ext-install mysqli
