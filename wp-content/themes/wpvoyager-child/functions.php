@@ -5,10 +5,11 @@ function wpv_enqueue_styles() {
     wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
 }
 
-function my_forcelogin_whitelist( $whitelist ) {
-    $whitelist[] = site_url( '/login/' );
-    return $whitelist;
-}
-add_filter('v_forcelogin_whitelist', 'my_forcelogin_whitelist', 10, 1);
+add_action('template_redirect', function() {
+    if (!is_user_logged_in() && !in_array($_SERVER['REQUEST_URI'], ['/auth/', '/wp-admin/'])) {
+        wp_safe_redirect(site_url('/auth/'));
+        exit;
+    }
+});
 
 ?>
