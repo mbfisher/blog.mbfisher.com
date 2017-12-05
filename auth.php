@@ -2,6 +2,11 @@
 /** Make sure that the WordPress bootstrap has run before continuing. */
 require( dirname(__FILE__) . '/wp-load.php' );
 
+//if (is_user_logged_in()) {
+//    wp_safe_redirect(site_url());
+//    exit;
+//}
+
 wp_head();
 ?>
 
@@ -18,5 +23,7 @@ wp_head();
 </header>
 
 <div class="container">
-    <?php echo do_shortcode("[passwordless-login]"); ?>
+    <div style="padding: 55px">
+        <?php echo do_shortcode("[passwordless-login]"); ?>
+    </div>
 </div>

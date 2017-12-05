@@ -273,7 +273,7 @@ function wpa_generate_url( $email = false, $nonce = false ){
 	$token = wpa_create_onetime_token( 'wpa_'.$user->ID, $user->ID  );
 
 	$arr_params = array( 'wpa_error_token', 'uid', 'token', 'nonce' );
-	$url = remove_query_arg( $arr_params, wpa_curpageurl() );
+	$url = remove_query_arg( $arr_params, site_url() );
 
     $url_params = array('uid' => $user->ID, 'token' => $token, 'nonce' => $nonce);
     $url = add_query_arg($url_params, $url);
