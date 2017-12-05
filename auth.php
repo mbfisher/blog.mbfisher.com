@@ -1,8 +1,9 @@
 <?php
-/**
- * Template Name: Login
- */
-wp_head(); ?>
+/** Make sure that the WordPress bootstrap has run before continuing. */
+require( dirname(__FILE__) . '/wp-load.php' );
+
+wp_head();
+?>
 
 <header id="header" class="black">
     <div class="container">
@@ -17,10 +18,5 @@ wp_head(); ?>
 </header>
 
 <div class="container">
-    <!-- TO SHOW THE PAGE CONTENTS -->
-    <?php while ( have_posts() ) : the_post(); ?> <!--Because the_content() works only inside a WP Loop -->
-        <?php the_content(); ?> <!-- Page Content -->
-    <?php endwhile; //resetting the page loop ?>
-
-    <?php wp_reset_query(); //resetting the page query ?>
+    <?php echo do_shortcode("[passwordless-login]"); ?>
 </div>

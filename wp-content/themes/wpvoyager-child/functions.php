@@ -6,10 +6,10 @@ function wpv_enqueue_styles() {
 }
 
 add_action('template_redirect', function() {
-    if (!is_user_logged_in() && !in_array($_SERVER['REQUEST_URI'], ['/auth/', '/wp-admin/', wp_login_url()])) {
-        wp_safe_redirect(site_url('/auth/'));
+    $auth_url = '/auth.php';
+
+    if (!is_user_logged_in() && !in_array($_SERVER['REQUEST_URI'], [$auth_url, '/wp-admin/', wp_login_url()])) {
+        wp_safe_redirect(site_url($auth_url));
         exit;
     }
 });
-
-?>
