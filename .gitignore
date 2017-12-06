@@ -2,3 +2,4 @@
 .idea/
 .passwd
 .env
+*.sql
