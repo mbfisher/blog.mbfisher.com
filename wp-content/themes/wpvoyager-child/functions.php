@@ -13,3 +13,7 @@ add_action('template_redirect', function() {
         exit;
     }
 });
+
+add_filter( 'auth_cookie_expiration', function () {
+    return 30 * 24 * 60 * 60; // 30 days
+});
