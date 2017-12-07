@@ -12,3 +12,8 @@ Domain Path: /languages/
 Tags: light, responsive-layout, theme-options, translation-ready, two-columns
 Template:  wpvoyager
 */
+
+blockquote {
+    font-size: inherit;
+    font-style: italic;
+}
