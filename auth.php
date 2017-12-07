@@ -24,6 +24,7 @@ wp_head();
 
 <div class="container">
     <div style="padding: 55px">
+        <h1>Login</h1>
         <?php echo do_shortcode("[passwordless-login]"); ?>
     </div>
 </div>

@@ -159,18 +159,26 @@ function wpa_front_end_login(){
     }
 
 
-    if ($show_form)
-    ?>
-<form name="wpaloginform" id="wpaloginform" action="" method="post">
-    <p>
-        <label for="user_email_username">Please enter your email address to log in:</label>
-        <input type="text" name="user_email_username" id="user_email_username" class="input" value="<?php echo esc_attr( $account ); ?>" size="25" />
-        <input type="submit" name="wpa-submit" id="wpa-submit" class="button-primary" value="<?php esc_attr_e('Log In'); ?>" />
-    </p>
-    <?php do_action('wpa_login_form'); ?>
-    <?php wp_nonce_field( 'wpa_passwordless_login_request', 'nonce', false ) ?>
-</form>
-<?php
+    if ($show_form) {
+        ?>
+        <form name="wpaloginform" id="wpaloginform" action="" method="post">
+            <p>
+                <label for="user_email_username">Please enter your email
+                    address to log in:</label>
+                <input type="text" name="user_email_username"
+                       id="user_email_username" class="input"
+                       value="<?php echo esc_attr($account); ?>" size="25"/>
+                <input type="submit" name="wpa-submit" id="wpa-submit"
+                       class="button-primary"
+                       value="<?php esc_attr_e('Log In'); ?>"/>
+            </p>
+            <?php do_action('wpa_login_form'); ?>
+            <?php wp_nonce_field('wpa_passwordless_login_request', 'nonce',
+                false) ?>
+        </form>
+        <?php
+    }
+
 	$output = ob_get_contents();
 	ob_end_clean();
 	return $output;
@@ -227,13 +235,17 @@ function wpa_send_link( $email_account = false, $nonce = false, $redirect = null
 		$blog_name = esc_attr( $blog_name );
 
 		//Filters to change the content type of the email
-		add_filter('wp_mail_content_type', function() { return 'text/hml'; });
+		add_filter('wp_mail_content_type', 'wpa_mail_content_type');
 
 		$unique_url = wpa_generate_url( $valid_email , $nonce, $redirect );
-		echo $unique_url;
 		$subject = apply_filters('wpa_email_subject', __("Login at $blog_name"));
-		$message = apply_filters('wpa_email_message', __('Hello ! <br><br>Login at '.$blog_name.' by visiting this url: <a href="'. esc_url( $unique_url ) .'" target="_blank">'. esc_url( $unique_url ) .'</a>'), $unique_url, $valid_email);
-		$sent_mail = wp_mail( $valid_email, $subject, $message );
+		$message = apply_filters('wpa_email_message', __('Hello!<p>Login at '.$blog_name.' by visiting this url: <a href="'. esc_url( $unique_url ) .'" target="_blank">'. esc_url( $unique_url ) .'</a></p>'), $unique_url, $valid_email);
+		$headers = [
+		        'From: The Fishers\' Travel Blog <'.esc_attr(get_bloginfo('admin_email')).'>'
+        ];
+
+		$sent_mail = wp_mail( $valid_email, $subject, $message, $headers );
+		remove_filter('wp_mail_content_type', 'wpa_mail_content_type');
 
 		if ( !$sent_mail ){
 			$errors->add('email_not_sent', __('There was a problem sending your email. Please try again or contact an admin.'));
@@ -246,6 +258,10 @@ function wpa_send_link( $email_account = false, $nonce = false, $redirect = null
 	}else{
 		return $errors;
 	}
+}
+
+function wpa_mail_content_type() {
+    return 'text/html';
 }
 
 /**
