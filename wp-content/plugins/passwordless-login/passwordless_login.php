@@ -135,8 +135,9 @@ function wpa_front_end_login(){
 	$account = ( isset( $_POST['user_email_username']) ) ? $account = sanitize_text_field( $_POST['user_email_username'] ) : false;
 	$nonce = ( isset( $_POST['nonce']) ) ? $nonce = sanitize_key( $_POST['nonce'] ) : false;
 	$error_token = ( isset( $_GET['wpa_error_token']) ) ? $error_token = sanitize_key( $_GET['wpa_error_token'] ) : false;
+	$redirect = ( isset( $_REQUEST['redirect_to']) ) ? sanitize_text_field( $_REQUEST['redirect_to'] ) : false;
 
-	$sent_link = wpa_send_link($account, $nonce);
+	$sent_link = wpa_send_link($account, $nonce, $redirect);
 
 	if( $account && !is_wp_error($sent_link) ){
 		echo '<p class="wpa-box wpa-success">'. apply_filters('wpa_success_link_msg', __('Please check your email. You will soon receive an email with a login link.', 'passwordless') ) .'</p>';
@@ -224,7 +225,7 @@ function wpa_valid_account( $account ){
  *
  * @return bool / WP_Error
  */
-function wpa_send_link( $email_account = false, $nonce = false ){
+function wpa_send_link( $email_account = false, $nonce = false, $redirect = null ){
 	if ( $email_account  == false ){
 		return false;
 	}
@@ -239,7 +240,8 @@ function wpa_send_link( $email_account = false, $nonce = false ){
 		//Filters to change the content type of the email
 		add_filter('wp_mail_content_type', function() { return 'text/hml'; });
 
-		$unique_url = wpa_generate_url( $valid_email , $nonce );
+		$unique_url = wpa_generate_url( $valid_email , $nonce, $redirect );
+		echo $unique_url;
 		$subject = apply_filters('wpa_email_subject', __("Login at $blog_name"));
 		$message = apply_filters('wpa_email_message', __('Hello ! <br><br>Login at '.$blog_name.' by visiting this url: <a href="'. esc_url( $unique_url ) .'" target="_blank">'. esc_url( $unique_url ) .'</a>'), $unique_url, $valid_email);
 		$sent_mail = wp_mail( $valid_email, $subject, $message );
@@ -264,7 +266,7 @@ function wpa_send_link( $email_account = false, $nonce = false ){
  *
  * @return string
  */
-function wpa_generate_url( $email = false, $nonce = false ){
+function wpa_generate_url( $email = false, $nonce = false, $redirect = null ){
 	if ( $email  == false ){
 		return false;
 	}
@@ -272,10 +274,14 @@ function wpa_generate_url( $email = false, $nonce = false ){
 	$user = get_user_by( 'email', $email );
 	$token = wpa_create_onetime_token( 'wpa_'.$user->ID, $user->ID  );
 
-	$arr_params = array( 'wpa_error_token', 'uid', 'token', 'nonce' );
+	$arr_params = array( 'wpa_error_token', 'uid', 'token', 'nonce', 'redirect_to' );
 	$url = remove_query_arg( $arr_params, site_url() );
 
-    $url_params = array('uid' => $user->ID, 'token' => $token, 'nonce' => $nonce);
+    $url_params = array('uid' => $user->ID, 'token' => $token, 'nonce' => $nonce );
+    if (isset($redirect)) {
+        $url_params['redirect_to'] = urlencode($redirect);
+    }
+
     $url = add_query_arg($url_params, $url);
 
 	return $url;
