@@ -131,57 +131,46 @@ add_action( 'wp_print_styles', 'wpa_add_plugin_stylesheet' );
  * @return html
  */
 function wpa_front_end_login(){
-	ob_start();
-	$account = ( isset( $_POST['user_email_username']) ) ? $account = sanitize_text_field( $_POST['user_email_username'] ) : false;
+    if ( is_user_logged_in() ) {
+        $current_user = wp_get_current_user();
+        return '<p class="wpa-box wpa-alert">'.apply_filters('wpa_success_login_msg', sprintf(__( 'You are currently logged in as %1$s. %2$s', 'profilebuilder' ), '<a href="'.$authorPostsUrl = get_author_posts_url( $current_user->ID ).'" title="'.$current_user->display_name.'">'.$current_user->display_name.'</a>', '<a href="'.wp_logout_url( $redirectTo = wpa_curpageurl() ).'" title="'.__( 'Log out of this account', 'passwordless' ).'">'. __( 'Log out', 'passwordless').' &raquo;</a>' ) ) . '</p><!-- .alert-->';
+    }
+
+
+	$account = ( isset( $_REQUEST['user_email_username']) ) ? $account = sanitize_text_field( $_REQUEST['user_email_username'] ) : false;
 	$nonce = ( isset( $_POST['nonce']) ) ? $nonce = sanitize_key( $_POST['nonce'] ) : false;
 	$error_token = ( isset( $_GET['wpa_error_token']) ) ? $error_token = sanitize_key( $_GET['wpa_error_token'] ) : false;
 	$redirect = ( isset( $_REQUEST['redirect_to']) ) ? sanitize_text_field( $_REQUEST['redirect_to'] ) : false;
 
-	$sent_link = wpa_send_link($account, $nonce, $redirect);
+	ob_start();
 
-	if( $account && !is_wp_error($sent_link) ){
-		echo '<p class="wpa-box wpa-success">'. apply_filters('wpa_success_link_msg', __('Please check your email. You will soon receive an email with a login link.', 'passwordless') ) .'</p>';
-	} elseif ( is_user_logged_in() ) {
-		$current_user = wp_get_current_user();
-		echo '<p class="wpa-box wpa-alert">'.apply_filters('wpa_success_login_msg', sprintf(__( 'You are currently logged in as %1$s. %2$s', 'profilebuilder' ), '<a href="'.$authorPostsUrl = get_author_posts_url( $current_user->ID ).'" title="'.$current_user->display_name.'">'.$current_user->display_name.'</a>', '<a href="'.wp_logout_url( $redirectTo = wpa_curpageurl() ).'" title="'.__( 'Log out of this account', 'passwordless' ).'">'. __( 'Log out', 'passwordless').' &raquo;</a>' ) ) . '</p><!-- .alert-->';
-	} else {
-		if ( is_wp_error($sent_link) ){
-			echo '<p class="wpa-box wpa-error">' . apply_filters( 'wpa_error', $sent_link->get_error_message() ) . '</p>';
-		}
-		if( $error_token ) {
-			echo '<p class="wpa-box wpa-error">' . apply_filters( 'wpa_invalid_token_error', __('Your token has probably expired. Please try again.', 'passwordless') ) . '</p>';
-		}
+	$show_form = true;
+	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $sent_link = wpa_send_link($account, $nonce, $redirect);
 
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		//Setting up the label for the password request form based on the Allows Users to Login With Profile Builder Option
-		if (is_plugin_active('profile-builder-pro/index.php') || is_plugin_active('profile-builder/index.php') || is_plugin_active('profile-builder-hobbyist/index.php')) {
-			$wppb_general_options = get_option('wppb_general_settings');
+        if (is_wp_error($sent_link)) {
+            echo '<p class="wpa-box wpa-error">' . apply_filters( 'wpa_error', $sent_link->get_error_message() ) . '</p>';
+        } elseif ($error_token) {
+            echo '<p class="wpa-box wpa-error">' . apply_filters( 'wpa_invalid_token_error', __('Your token has probably expired. Please try again.', 'passwordless') ) . '</p>';
+        } else {
+            $show_form = false;
+            echo '<p class="wpa-box wpa-success">'. apply_filters('wpa_success_link_msg', __('Please check your inbox for an email with a login link. It can take a couple of minutes!', 'passwordless') ) .'</p>';
+        }
+    }
 
-			if ($wppb_general_options !== false) {
-				if ($wppb_general_options['loginWith'] == 'email')
-					$label = 'Login with email<br>';
-				else if ($wppb_general_options['loginWith'] == 'username')
-					$label = 'Login with username<br>';
-				else
-					$label = 'Login with email or username';
-			}
-		}
-		else
-			$label = 'Login with email or username';
-		?>
-	<form name="wpaloginform" id="wpaloginform" action="" method="post">
-		<p>
-			<label for="user_email_username"><?php apply_filters('wpa_change_form_label', _e($label)); ?></label>
-			<input type="text" name="user_email_username" id="user_email_username" class="input" value="<?php echo esc_attr( $account ); ?>" size="25" />
-			<input type="submit" name="wpa-submit" id="wpa-submit" class="button-primary" value="<?php esc_attr_e('Log In'); ?>" />
-		</p>
-		<?php do_action('wpa_login_form'); ?>
-		<?php wp_nonce_field( 'wpa_passwordless_login_request', 'nonce', false ) ?>
 
-	</form>
+    if ($show_form)
+    ?>
+<form name="wpaloginform" id="wpaloginform" action="" method="post">
+    <p>
+        <label for="user_email_username">Please enter your email address to log in:</label>
+        <input type="text" name="user_email_username" id="user_email_username" class="input" value="<?php echo esc_attr( $account ); ?>" size="25" />
+        <input type="submit" name="wpa-submit" id="wpa-submit" class="button-primary" value="<?php esc_attr_e('Log In'); ?>" />
+    </p>
+    <?php do_action('wpa_login_form'); ?>
+    <?php wp_nonce_field( 'wpa_passwordless_login_request', 'nonce', false ) ?>
+</form>
 <?php
-	}
-
 	$output = ob_get_contents();
 	ob_end_clean();
 	return $output;
@@ -215,7 +204,7 @@ function wpa_valid_account( $account ){
 		}
 	}
 
-	return new WP_Error( 'invalid_account', __( "The username or email you provided do not exist. Please try again.", "passwordless" ) );
+	return new WP_Error( 'invalid_account', __( "Your details were not recognised. Please try again.", "passwordless" ) );
 }
 
 /**
@@ -274,10 +263,16 @@ function wpa_generate_url( $email = false, $nonce = false, $redirect = null ){
 	$user = get_user_by( 'email', $email );
 	$token = wpa_create_onetime_token( 'wpa_'.$user->ID, $user->ID  );
 
-	$arr_params = array( 'wpa_error_token', 'uid', 'token', 'nonce', 'redirect_to' );
+	$arr_params = array( 'wpa_error_token', 'uid', 'token', 'nonce', 'email', 'redirect_to' );
 	$url = remove_query_arg( $arr_params, site_url() );
 
-    $url_params = array('uid' => $user->ID, 'token' => $token, 'nonce' => $nonce );
+    $url_params = array(
+        'uid' => $user->ID,
+        'token' => $token,
+        'nonce' => $nonce,
+        'email' => $email
+    );
+
     if (isset($redirect)) {
         $url_params['redirect_to'] = urlencode($redirect);
     }

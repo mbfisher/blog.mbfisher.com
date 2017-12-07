@@ -19,7 +19,7 @@ add_action('template_redirect', function () {
     }
 });
 
-add_filter( 'auth_cookie_expiration', function () {
+add_filter('auth_cookie_expiration', function () {
     return 90 * 24 * 60 * 60; // 90 days
 });
 
