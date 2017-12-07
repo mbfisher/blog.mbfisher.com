@@ -240,7 +240,7 @@ function wpa_send_link( $email_account = false, $nonce = false, $redirect = null
 		$subject = "Login to $blog_name";
 		$message = 'Hello!<p>Login by visiting this url: <a href="'. esc_url( $unique_url ) .'" target="_blank">'. esc_url( $unique_url ) .'</a></p>';
 		$headers = [
-		        'From: The Fishers\' Travel Blog <'.get_bloginfo('admin_email').'>'
+		        'From: The Fishers Travel Blog <'.get_bloginfo('admin_email').'>'
         ];
 
 		$sent_mail = wp_mail( $valid_email, $subject, $message, $headers );
