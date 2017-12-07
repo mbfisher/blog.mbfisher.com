@@ -237,8 +237,8 @@ function wpa_send_link( $email_account = false, $nonce = false, $redirect = null
 		add_filter('wp_mail_content_type', 'wpa_mail_content_type');
 
 		$unique_url = wpa_generate_url( $valid_email , $nonce, $redirect );
-		$subject = apply_filters('wpa_email_subject', __("Login at $blog_name"));
-		$message = apply_filters('wpa_email_message', __('Hello!<p>Login at '.esc_html($blog_name).' by visiting this url: <a href="'. esc_url( $unique_url ) .'" target="_blank">'. esc_url( $unique_url ) .'</a></p>'), $unique_url, $valid_email);
+		$subject = "Login to $blog_name";
+		$message = 'Hello!<p>Login by visiting this url: <a href="'. esc_url( $unique_url ) .'" target="_blank">'. esc_url( $unique_url ) .'</a></p>';
 		$headers = [
 		        'From: The Fishers\' Travel Blog <'.get_bloginfo('admin_email').'>'
         ];
