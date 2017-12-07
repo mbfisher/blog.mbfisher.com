@@ -17,3 +17,7 @@ add_action('template_redirect', function() {
 add_filter( 'auth_cookie_expiration', function () {
     return 30 * 24 * 60 * 60; // 30 days
 });
+
+add_filter('wpa_change_form_label', function () {
+    return 'To log in, please enter your email address:';
+});
