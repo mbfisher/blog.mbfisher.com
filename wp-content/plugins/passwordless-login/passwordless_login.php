@@ -241,7 +241,7 @@ function wpa_send_link( $email_account = false, $nonce = false, $redirect = null
 		$subject = apply_filters('wpa_email_subject', __("Login at $blog_name"));
 		$message = apply_filters('wpa_email_message', __('Hello!<p>Login at '.$blog_name.' by visiting this url: <a href="'. esc_url( $unique_url ) .'" target="_blank">'. esc_url( $unique_url ) .'</a></p>'), $unique_url, $valid_email);
 		$headers = [
-		        'From: The Fishers\' Travel Blog <'.esc_attr(get_bloginfo('admin_email')).'>'
+		        'From: The Fishers\' Travel Blog <'.get_bloginfo('admin_email').'>'
         ];
 
 		$sent_mail = wp_mail( $valid_email, $subject, $message, $headers );
@@ -279,14 +279,13 @@ function wpa_generate_url( $email = false, $nonce = false, $redirect = null ){
 	$user = get_user_by( 'email', $email );
 	$token = wpa_create_onetime_token( 'wpa_'.$user->ID, $user->ID  );
 
-	$arr_params = array( 'wpa_error_token', 'uid', 'token', 'nonce', 'email', 'redirect_to' );
+	$arr_params = array( 'wpa_error_token', 'uid', 'token', 'nonce', 'redirect_to' );
 	$url = remove_query_arg( $arr_params, site_url() );
 
     $url_params = array(
         'uid' => $user->ID,
         'token' => $token,
         'nonce' => $nonce,
-        'email' => $email
     );
 
     if (isset($redirect)) {
